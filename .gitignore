@@ -3,4 +3,5 @@
 /out/
 /.idea/
 *.iml
-/data/splitted/*
+/data/splited/*
+/data/test/
