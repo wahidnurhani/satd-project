@@ -1,0 +1,4 @@
+Implementation-Version: 4.2.0
+Built-Date: 2020-11-17
+Created-By: Stanford JavaNLP (jebolton)
+Main-class: edu.stanford.nlp.classify.ColumnDataClassifier
