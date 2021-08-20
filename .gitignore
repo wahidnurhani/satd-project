@@ -1,5 +1,6 @@
-/out/
+/java/out/
 /venv/
+/out/
 /.idea/
 *.iml
 /data/splitted/*
