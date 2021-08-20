@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.OutputStream;
 
+//just for test
 public class SATDClassifier {
     static Runtime runtime = Runtime.getRuntime();
 
