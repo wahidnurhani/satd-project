@@ -5,14 +5,14 @@ import pandas as pd
 import re
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
-#  from nltk.stem.snowball import SnowballStemmer
+from nltk.stem.snowball import SnowballStemmer
 # from autocorrect import Speller
 
 # from nltk.stem import WordNetLemmatizer
 
 stop_words = stopwords.words('english')
 # lemma = WordNetLemmatizer()
-# stemmer = SnowballStemmer("english")
+stemmer = SnowballStemmer("english")
 
 
 # spell = Speller(lang='en')
@@ -29,15 +29,15 @@ def remove_url(text_data):
     return re_www.strip()
 
 
-# def remove_special_character(phrase, remove_number=False):
-#     phrase = re.sub("\S*\d\S*", "", phrase).strip()
-#     if remove_number:
-#         phrase = re.sub('[^A-Za-z]+', ' ', phrase)
-#     else:
-#         phrase = re.sub('[^A-Za-z0-9]+', ' ', phrase)
-#     return phrase.strip()
-#
-#
+def remove_special_character(phrase, remove_number=False):
+    phrase = re.sub("\S*\d\S*", "", phrase).strip()
+    if remove_number:
+        phrase = re.sub('[^A-Za-z]+', ' ', phrase)
+    else:
+        phrase = re.sub('[^A-Za-z0-9]+', ' ', phrase)
+    return phrase.strip()
+
+
 # # def spelling_corrector(text_data):
 # #     words = text_data.split()
 # #     result = ""
@@ -56,14 +56,14 @@ def remove_stopwords(text_data):
     return result.strip()
 
 
-# # def stemming_text(text_data):
-# #     words = text_data.split()
-# #     result = ""
-# #     for w in words:
-# #         result = result + " " + stemmer.stem(w)
-# #     return result.strip()
-#
-#
+def stemming_text(text_data):
+    words = text_data.split()
+    result = ""
+    for w in words:
+        result = result + " " + stemmer.stem(w)
+    return result.strip()
+
+
 # # def lem_text(text_data):
 # #     words = text_data.split()
 # #     result = ""
@@ -120,9 +120,9 @@ def format_data(data_frame: pd.DataFrame):
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: fix_contractions(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_stopwords(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_unwanted_words(x))
-    # # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: stemming_text(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: stemming_text(x))
     # # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: lem_text(x))
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_special_character(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_special_character(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: replace_empty_string(x))
     data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
     return data_frame_clean.dropna()
