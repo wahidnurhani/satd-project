@@ -6,16 +6,10 @@ import re
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
-# from autocorrect import Speller
 
-# from nltk.stem import WordNetLemmatizer
 
 stop_words = stopwords.words('english')
-# lemma = WordNetLemmatizer()
 stemmer = SnowballStemmer("english")
-
-
-# spell = Speller(lang='en')
 
 
 def remove_html_tags(text_data):
@@ -38,15 +32,6 @@ def remove_special_character(phrase, remove_number=False):
     return phrase.strip()
 
 
-# # def spelling_corrector(text_data):
-# #     words = text_data.split()
-# #     result = ""
-# #     for w in words:
-# #         if w not in stop_words:
-# #             result = result + " " + spell(w)
-# #     return result.strip()
-#
-#
 def remove_stopwords(text_data):
     words = text_data.split()
     result = ""
@@ -109,7 +94,7 @@ def export_to_train_and_test(df1, df2, train_path, test_path):
     df2.to_csv(test_path, index=False, header=False, sep="\t")
 
 
-def format_data(data_frame: pd.DataFrame):
+def clean_and_normalize_data(data_frame: pd.DataFrame):
     cols_to_check = ['commenttext']
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: x.strip())
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: x.lower())
@@ -151,7 +136,7 @@ if __name__ == '__main__':
 
     cols_to_use = ['classification', 'commenttext']
     df = pd.read_csv(csv_source)
-    clean_df = format_data(df)
+    clean_df = clean_and_normalize_data(df)
     transform_data(int(split_number), clean_df, train_file_path, test_file_path)
 
     print("python process finished")
