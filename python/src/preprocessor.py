@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 import re
 from bs4 import BeautifulSoup
-# from nltk.corpus import stopwords
+from nltk.corpus import stopwords
 #  from nltk.stem.snowball import SnowballStemmer
 # from autocorrect import Speller
 
 # from nltk.stem import WordNetLemmatizer
 
-# stop_words = stopwords.words('english')
+stop_words = stopwords.words('english')
 # lemma = WordNetLemmatizer()
 # stemmer = SnowballStemmer("english")
 
@@ -47,15 +47,15 @@ def remove_url(text_data):
 # #     return result.strip()
 #
 #
-# def remove_stopwords(text_data):
-#     words = text_data.split()
-#     result = ""
-#     for w in words:
-#         if w not in stop_words:
-#             result = result + " " + w
-#     return result.strip()
-#
-#
+def remove_stopwords(text_data):
+    words = text_data.split()
+    result = ""
+    for w in words:
+        if w not in stop_words:
+            result = result + " " + w
+    return result.strip()
+
+
 # # def stemming_text(text_data):
 # #     words = text_data.split()
 # #     result = ""
@@ -118,7 +118,7 @@ def format_data(data_frame: pd.DataFrame):
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_html_tags(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_url(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: fix_contractions(x))
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_stopwords(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_stopwords(x))
     # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_unwanted_words(x))
     # # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: stemming_text(x))
     # # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: lem_text(x))
