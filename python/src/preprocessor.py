@@ -89,19 +89,19 @@ def fix_contractions(phrase):
     return phrase
 
 
-# def replace_empty_string(text_data):
-#     if len(text_data.strip()) < 1:
-#         return np.nan
-#     return text_data.strip()
-#
-#
-# def remove_unwanted_words(text_data):
-#     words = text_data.split()
-#     result = ""
-#     for w in words:
-#         if len(w) > 2:
-#             result = result + " " + w
-#     return result
+def replace_empty_string(text_data):
+    if len(text_data.strip()) < 1:
+        return np.nan
+    return text_data.strip()
+
+
+def remove_unwanted_words(text_data):
+    words = text_data.split()
+    result = ""
+    for w in words:
+        if len(w) > 2:
+            result = result + " " + w
+    return result
 
 
 def export_to_train_and_test(df1, df2, train_path, test_path):
@@ -119,11 +119,11 @@ def format_data(data_frame: pd.DataFrame):
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_url(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: fix_contractions(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_stopwords(x))
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_unwanted_words(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_unwanted_words(x))
     # # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: stemming_text(x))
     # # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: lem_text(x))
     # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: remove_special_character(x))
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: replace_empty_string(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: replace_empty_string(x))
     data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
     return data_frame_clean.dropna()
 
