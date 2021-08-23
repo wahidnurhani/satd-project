@@ -1,16 +1,14 @@
+import re
 import sys
 
 import numpy as np
 import pandas as pd
-import re
-import wordninja
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
 from spellchecker import SpellChecker
+from textblob import TextBlob, Word
 
 stop_words = stopwords.words('english')
-lemma = WordNetLemmatizer
 spell = SpellChecker()
 
 
@@ -37,13 +35,25 @@ def replace_empty_string(text_data):
     return text_data.strip()
 
 
-def remove_stopwords_and_lemmatization(text_data):
+def lemmatization(text_data):
+    sent = TextBlob(text_data)
+    tag_dict = {"J": 'a',
+                "N": 'n',
+                "V": 'v',
+                "R": 'r'}
+    words_and_tags = [(w, tag_dict.get(pos[0], 'n')) for w, pos in sent.tags]
+    lemmatized_list = [wd.lemmatize(tag) for wd, tag in words_and_tags]
+    return " ".join(lemmatized_list)
+
+
+def remove_stopwords(text_data):
     words = text_data.split()
     result = ""
     for w in words:
         if w not in stop_words:
             if len(w) > 2:
-                result = result + " " + lemma.lemmatize('v', w)
+                word = Word(w)
+                result = result + " " + word.lemmatize()
     return result.strip()
 
 
@@ -61,16 +71,6 @@ def initial_cleaning_and_fix_contractions(text_data):
     return contractions_free
 
 
-# def split_concatenated_word(text_data):
-#     words = text_data.split()
-#     result = ""
-#     for w in words:
-#         splitted = wordninja.split(w)
-#         for s in splitted:
-#             result = result + " " + s
-#     return result.strip()
-
-
 def second_cleaning_and_lemmatization(phrase, remove_number=False):
     # remove whitespaces and wordnumber
     phrase = re.sub("\S*\d\S*", "", phrase).strip()
@@ -78,11 +78,14 @@ def second_cleaning_and_lemmatization(phrase, remove_number=False):
     if remove_number:
         phrase = re.sub('[^A-Za-z]+', ' ', phrase)
     else:
-        phrase = re.sub('[^,.A-Za-z0-9]+', ' ', phrase)
+        phrase = re.sub('[^A-Za-z0-9]+', ' ', phrase)
     if len(phrase) <= 2:
         phrase = ""
     else:
-        phrase = remove_stopwords_and_lemmatization(phrase)
+        # remove stopwords
+        phrase = remove_stopwords(phrase)
+        # lemmatization
+        phrase = lemmatization(phrase)
 
     # replace empty string with np.nan
     phrase = replace_empty_string(phrase)
@@ -106,8 +109,6 @@ def clean_and_normalize_data(data_frame: pd.DataFrame):
     cols_to_check = ['commenttext']
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: x.lower())
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: split_concatenated_word(x))
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: spell_check(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: second_cleaning_and_lemmatization(x))
     data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
     return data_frame_clean.dropna()
