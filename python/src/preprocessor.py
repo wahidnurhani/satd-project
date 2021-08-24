@@ -5,11 +5,9 @@ import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
-from spellchecker import SpellChecker
 from textblob import TextBlob, Word
 
 stop_words = stopwords.words('english')
-spell = SpellChecker()
 
 
 def fix_contractions(phrase):
@@ -36,12 +34,12 @@ def replace_empty_string(text_data):
 
 
 def lemmatization(text_data):
-    sent = TextBlob(text_data)
-    tag_dict = {"J": 'a',
-                "N": 'n',
-                "V": 'v',
-                "R": 'r'}
-    words_and_tags = [(w, tag_dict.get(pos[0], 'n')) for w, pos in sent.tags]
+    sentence = TextBlob(text_data)
+    tags_dict = {"J": 'a',
+                 "N": 'n',
+                 "V": 'v',
+                 "R": 'r'}
+    words_and_tags = [(w, tags_dict.get(pos[0], 'n')) for w, pos in sentence.tags]
     lemmatized_list = [wd.lemmatize(tag) for wd, tag in words_and_tags]
     return " ".join(lemmatized_list)
 
@@ -67,18 +65,19 @@ def initial_cleaning_and_fix_contractions(text_data):
     re_https = re.sub(r"http\S+", "", soup.get_text())
     clean_text = re.sub(r"www.\S+", "", re_https)
 
+    # fix contractions
     contractions_free = fix_contractions(clean_text)
     return contractions_free
 
 
-def second_cleaning_and_lemmatization(phrase, remove_number=False):
+def second_cleaning_and_lemmatization(phrase, remove_number=True):
     # remove whitespaces and wordnumber
     phrase = re.sub("\S*\d\S*", "", phrase).strip()
     # remove unwanted character
     if remove_number:
-        phrase = re.sub('[^A-Za-z]+', ' ', phrase)
+        phrase = re.sub('[^.,A-Za-z]+', ' ', phrase)
     else:
-        phrase = re.sub('[^A-Za-z0-9]+', ' ', phrase)
+        phrase = re.sub('[^.,A-Za-z0-9]+', ' ', phrase)
     if len(phrase) <= 2:
         phrase = ""
     else:
@@ -90,14 +89,6 @@ def second_cleaning_and_lemmatization(phrase, remove_number=False):
     # replace empty string with np.nan
     phrase = replace_empty_string(phrase)
     return phrase
-
-
-def spell_check(text_data):
-    words = text_data.split()
-    result = ""
-    for w in words:
-        result = result + " " + spell.correction(w)
-    return result
 
 
 def export_to_train_and_test(df1, df2, train_path, test_path):
