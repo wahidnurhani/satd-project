@@ -29,5 +29,5 @@ tolerance=1e-4
 #
 # Training input
 #
-trainFile=./trainFile.train
-testFile=./testFile.test
+trainFile=data/splited/trainFile.train
+testFile=data/splited/testFile.test
