@@ -48,35 +48,31 @@ def remove_stopwords(text_data):
 
 
 def initial_cleaning_and_fix_contractions(text_data):
-    # Stanford classifier form
-    text_data = text_data.replace('\t', ' ')
-    text_data = text_data.replace('\n', '. ')
-
     # remove html tags and url
     soup = BeautifulSoup(text_data, 'lxml')
     re_https = re.sub(r"http\S+", "", soup.get_text())
     clean_text = re.sub(r"www.\S+", "", re_https)
 
     # fix contractions
-    contractions_free = fix_contractions(clean_text)
-    return contractions_free
+    # contractions_free = fix_contractions(clean_text)
+    return clean_text
 
 
-def second_cleaning_and_lemmatization(phrase, remove_number=True):
-    # remove whitespaces and wordnumber
-    phrase = re.sub("\S*\d\S*", "", phrase).strip()
+def second_cleaning_and_lemmatization(phrase, remove_number=False):
+    # Stanford classifier form
+    phrase = phrase.replace('\t', ' ')
+    phrase = phrase.replace('\n', '. ')
+
     # remove unwanted character
     if remove_number:
-        phrase = re.sub('[^.A-Za-z]+', ' ', phrase)
+        phrase = re.sub('[^(){}.!?A-Za-z]+', ' ', phrase)
     else:
-        phrase = re.sub('[^.A-Za-z0-9]+', ' ', phrase)
-    if len(phrase) <= 2:
-        phrase = ""
-    else:
-        # remove stopwords
-        phrase = remove_stopwords(phrase)
-        # lemmatization
-        phrase = lemmatization(phrase)
+        phrase = re.sub('[^"(){}.!?A-Za-z0-9]+', ' ', phrase)
+
+    # remove stopwords
+    # phrase = remove_stopwords(phrase)
+    # lemmatization
+    # phrase = lemmatization(phrase)
 
     # replace empty string with np.nan
     phrase = replace_empty_string(phrase)
@@ -100,7 +96,6 @@ def clean_and_normalize_data(data_frame: pd.DataFrame):
 def split_data(data_number: int, data_frame):
     s_array = data_frame["projectname"].to_numpy()
     unique = np.unique(s_array)
-
     train = data_frame[data_frame['projectname'] != unique[data_number - 1]].drop(["projectname"], axis=1)
     test = data_frame[data_frame['projectname'] == unique[data_number - 1]].drop(["projectname"], axis=1)
     return train, test
@@ -120,6 +115,13 @@ if __name__ == '__main__':
 
     cols_to_use = ['classification', 'commenttext']
     df = pd.read_csv(csv_source)
+
+    # to_remove_index = ['DOCUMENTATION', 'DEFECT', 'TEST']
+    #
+    # for i in to_remove_index:
+    #     indexName = df[df['classification'] == i].index
+    #     df.drop(indexName, inplace=True)
+
     clean_df = clean_and_normalize_data(df)
     transform_data(int(split_number), clean_df, train_file_path, test_file_path)
 
