@@ -5,10 +5,10 @@ import numpy as np
 import pandas as pd
 import contractions
 from bs4 import BeautifulSoup
-from nltk.corpus import stopwords
-from textblob import TextBlob, Word
+# from nltk.corpus import stopwords
+# from textblob import TextBlob, Word
 
-stop_words = stopwords.words('english')
+# stop_words = stopwords.words('english')
 
 
 def fix_contractions(text_data):
@@ -25,26 +25,26 @@ def replace_empty_string(text_data):
     return text_data.strip()
 
 
-def lemmatization(text_data):
-    sentence = TextBlob(text_data)
-    tags_dict = {"J": 'a',
-                 "N": 'n',
-                 "V": 'v',
-                 "R": 'r'}
-    words_and_tags = [(w, tags_dict.get(pos[0], 'n')) for w, pos in sentence.tags]
-    lemmatized_list = [wd.lemmatize(tag) for wd, tag in words_and_tags]
-    return " ".join(lemmatized_list)
-
-
-def remove_stopwords(text_data):
-    words = text_data.split()
-    result = ""
-    for w in words:
-        if w not in stop_words:
-            if len(w) > 2:
-                word = Word(w)
-                result = result + " " + word.lemmatize()
-    return result.strip()
+# def lemmatization(text_data):
+#     sentence = TextBlob(text_data)
+#     tags_dict = {"J": 'a',
+#                  "N": 'n',
+#                  "V": 'v',
+#                  "R": 'r'}
+#     words_and_tags = [(w, tags_dict.get(pos[0], 'n')) for w, pos in sentence.tags]
+#     lemmatized_list = [wd.lemmatize(tag) for wd, tag in words_and_tags]
+#     return " ".join(lemmatized_list)
+#
+#
+# def remove_stopwords(text_data):
+#     words = text_data.split()
+#     result = ""
+#     for w in words:
+#         if w not in stop_words:
+#             if len(w) > 2:
+#                 word = Word(w)
+#                 result = result + " " + word.lemmatize()
+#     return result.strip()
 
 
 def initial_cleaning_and_fix_contractions(text_data):
