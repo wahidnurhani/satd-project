@@ -6,7 +6,7 @@ useClassFeature=true
 1.usePrefixSuffixNGrams=true
 1.maxNGramLeng=10
 1.minNGramLeng=1
-1.binnedLengths=50,60,70
+1.binnedLengths=20,30,40
 #
 # Printing
 #

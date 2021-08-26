@@ -62,12 +62,11 @@ def second_cleaning_and_lemmatization(phrase, remove_number=False):
     # Stanford classifier form
     phrase = phrase.replace('\t', ' ')
     phrase = phrase.replace('\n', '. ')
-
     # remove unwanted character
     if remove_number:
-        phrase = re.sub('[^(){}.!?A-Za-z]+', ' ', phrase)
+        phrase = re.sub('[^.!?A-Za-z]+', ' ', phrase)
     else:
-        phrase = re.sub('[^"(){}.!?A-Za-z0-9]+', ' ', phrase)
+        phrase = re.sub('[^.!?A-Za-z0-9]+', ' ', phrase)
 
     # remove stopwords
     # phrase = remove_stopwords(phrase)
@@ -87,7 +86,7 @@ def export_to_train_and_test(df1, df2, train_path, test_path):
 def clean_and_normalize_data(data_frame: pd.DataFrame):
     cols_to_check = ['commenttext']
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: x.lower())
-    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
+    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: second_cleaning_and_lemmatization(x))
     data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
     return data_frame_clean.dropna()
