@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 import pandas as pd
-import contractions
+# import contractions
 from bs4 import BeautifulSoup
 # from nltk.corpus import stopwords
 # from textblob import TextBlob, Word
@@ -11,12 +11,12 @@ from bs4 import BeautifulSoup
 # stop_words = stopwords.words('english')
 
 
-def fix_contractions(text_data):
-    words = text_data.split()
-    result = ""
-    for w in words:
-        result = result + " " + contractions.fix(w)
-    return result.strip()
+# def fix_contractions(text_data):
+#     words = text_data.split()
+#     result = ""
+#     for w in words:
+#         result = result + " " + contractions.fix(w)
+#     return result.strip()
 
 
 def replace_empty_string(text_data):
