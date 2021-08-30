@@ -192,12 +192,17 @@ public class SATDClassifier {
     }
 
     private static int executeProcess(Process process) throws IOException, InterruptedException {
-        BufferedReader br = new BufferedReader(
-                new InputStreamReader(process.getInputStream()));
+        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader error_br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 
         StringBuilder buffer = new StringBuilder();
         String line;
         while ((line = br.readLine()) != null){
+            buffer.append(line);
+            buffer.append("\n");
+        }
+        buffer.append("Error line : ");
+        while ((line = error_br.readLine()) != null){
             buffer.append(line);
             buffer.append("\n");
         }
