@@ -20,7 +20,7 @@ public class SATDClassifier {
     static String testPath;
     static String propPath;
 
-    public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         writeFilePath();
         if (args.length > 0) {
             where = args[0] + File.separator;
@@ -31,7 +31,7 @@ public class SATDClassifier {
         Scanner in = new Scanner(System.in);
         int cv_number = in.nextInt();
         if(cv_number>=1 && cv_number<=10){
-            int py_process = runPreprocessor(cv_number);
+            int py_process = runPreprocessor(cv_number, getOsName());
             if (py_process != 220) {
                 writeFilePath2(cv_number);
             }
@@ -148,7 +148,6 @@ public class SATDClassifier {
     }
 
     public static void classify(){
-
             try {
                 System.out.println();
                 System.out.println("Training ColumnDataClassifier");
@@ -173,17 +172,28 @@ public class SATDClassifier {
             }
     }
 
-    public static int runPreprocessor(int crossValidationNumber) throws IOException, InterruptedException {
-        String[] cmd = {
-                "python", pyPath,
-                crossValidationNumber+"",
-                csv_source, trainPath,
-                testPath, propPath
-        };
+    public static int runPreprocessor(int crossValidationNumber, String osName) throws IOException, InterruptedException {
+        if(osName.startsWith("Windows")){
+            String[] cmd = {
+                    "python", pyPath,
+                    crossValidationNumber+"",
+                    csv_source, trainPath,
+                    testPath, propPath
+            };
+            return executeProcess(runtime.exec(cmd));
+        } else {
+            ProcessBuilder builder = new ProcessBuilder("python",
+                    System.getProperty("user.dir") + pyPath, crossValidationNumber+"",
+                    csv_source, trainPath,
+                    testPath, propPath
+            );
+            return executeProcess(builder.start());
+        }
+    }
 
-        Process process1 = runtime.exec(cmd);
+    private static int executeProcess(Process process) throws IOException, InterruptedException {
         BufferedReader br = new BufferedReader(
-                new InputStreamReader(process1.getInputStream()));
+                new InputStreamReader(process.getInputStream()));
 
         StringBuilder buffer = new StringBuilder();
         String line;
@@ -191,7 +201,7 @@ public class SATDClassifier {
             buffer.append(line);
             buffer.append("\n");
         }
-        int exitCode = process1.waitFor();
+        int exitCode = process.waitFor();
         System.out.println(" \n" + buffer);
         System.out.println("Process exit value:"+exitCode);
         br.close();
