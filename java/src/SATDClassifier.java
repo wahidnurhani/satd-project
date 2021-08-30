@@ -32,9 +32,10 @@ public class SATDClassifier {
         int cv_number = in.nextInt();
         if(cv_number>=1 && cv_number<=10){
             int py_process = runPreprocessor(cv_number);
-            if(py_process==220){
-                classify();
+            if (py_process != 220) {
+                writeFilePath2(cv_number);
             }
+            classify();
         } else {
             System.out.println("pleas type number between 1 and 10");
         }
@@ -47,6 +48,22 @@ public class SATDClassifier {
 
         //demonstrateSerialization();
         //demonstrateSerializationColumnDataClassifier();
+    }
+
+    private static void writeFilePath2(int cv_number) {
+        if(getOsName().startsWith("Windows")){
+            csv_source = ClassifierConstant.Unix.csv_source.replace("/", "\\\\");
+            pyPath = ClassifierConstant.Unix.pythonPath.replace("/", "\\\\");
+            trainPath = ClassifierConstant.Unix.trainFilePath.replace("/", "\\\\");
+            testPath = ClassifierConstant.Unix.testFilePath.replace("/", "\\\\");
+            propPath = ClassifierConstant.Unix.propFilePath.replace("/", "\\\\");
+        } else {
+            csv_source = ClassifierConstant.Unix.csv_source;
+            pyPath = ClassifierConstant.Unix.pythonPath;
+            trainPath = "./data/splited/"+cv_number+"/trainFile.train";
+            testPath = "./data/splited/"+cv_number+"/testFile.test";
+            propPath = ClassifierConstant.Unix.propFilePath;
+        }
     }
 
     private static void writeFilePath(){

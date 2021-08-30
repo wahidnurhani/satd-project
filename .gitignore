@@ -3,6 +3,4 @@
 /out/
 /.idea/
 *.iml
-/data/splited/*
-/data/test/
 /venv/*
