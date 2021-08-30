@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 import pandas as pd
-# import contractions
+import contractions
 from bs4 import BeautifulSoup
 # from nltk.corpus import stopwords
 # from textblob import TextBlob, Word
@@ -11,12 +11,12 @@ from bs4 import BeautifulSoup
 # stop_words = stopwords.words('english')
 
 
-# def fix_contractions(text_data):
-#     words = text_data.split()
-#     result = ""
-#     for w in words:
-#         result = result + " " + contractions.fix(w)
-#     return result.strip()
+def fix_contractions(text_data):
+    words = text_data.split()
+    result = ""
+    for w in words:
+        result = result + " " + contractions.fix(w)
+    return result.strip()
 
 
 def replace_empty_string(text_data):
@@ -49,13 +49,13 @@ def replace_empty_string(text_data):
 
 def initial_cleaning_and_fix_contractions(text_data):
     # remove html tags and url
-    soup = BeautifulSoup(text_data, 'lxml')
-    re_https = re.sub(r"http\S+", "", soup.get_text())
-    clean_text = re.sub(r"www.\S+", "", re_https)
+    # soup = BeautifulSoup(text_data, 'lxml')
+    # re_https = re.sub(r"http\S+", "", soup.get_text())
+    # clean_text = re.sub(r"www.\S+", "", re_https)
 
     # fix contractions
-    # contractions_free = fix_contractions(clean_text)
-    return clean_text
+    contractions_free = fix_contractions(text_data)
+    return contractions_free
 
 
 def second_cleaning_and_lemmatization(phrase, remove_number=False):
@@ -86,7 +86,7 @@ def export_to_train_and_test(df1, df2, train_path, test_path):
 def clean_and_normalize_data(data_frame: pd.DataFrame):
     cols_to_check = ['commenttext']
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: x.lower())
-    # data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: second_cleaning_and_lemmatization(x))
     data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
     return data_frame_clean.dropna()

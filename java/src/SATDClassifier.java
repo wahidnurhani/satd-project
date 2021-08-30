@@ -54,8 +54,8 @@ public class SATDClassifier {
         if(getOsName().startsWith("Windows")){
             csv_source = ClassifierConstant.Unix.csv_source.replace("/", "\\\\");
             pyPath = ClassifierConstant.Unix.pythonPath.replace("/", "\\\\");
-            trainPath = ClassifierConstant.Unix.trainFilePath.replace("/", "\\\\");
-            testPath = ClassifierConstant.Unix.testFilePath.replace("/", "\\\\");
+            trainPath = ("./data/splited/"+cv_number+"/trainFile.train").replace("/", "\\\\");
+            testPath = ("./data/splited/"+cv_number+"/testFile.test").replace("/", "\\\\");
             propPath = ClassifierConstant.Unix.propFilePath.replace("/", "\\\\");
         } else {
             csv_source = ClassifierConstant.Unix.csv_source;
