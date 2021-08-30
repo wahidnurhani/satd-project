@@ -31,7 +31,7 @@ public class SATDClassifier {
         Scanner in = new Scanner(System.in);
         int cv_number = in.nextInt();
         if(cv_number>=1 && cv_number<=10){
-            int py_process = runPreprocessor(cv_number, getOsName());
+            int py_process = runPreprocessor(cv_number);
             if (py_process != 220) {
                 writeFilePath2(cv_number);
             }
@@ -172,23 +172,13 @@ public class SATDClassifier {
             }
     }
 
-    public static int runPreprocessor(int crossValidationNumber, String osName) throws IOException, InterruptedException {
-        if(osName.startsWith("Windows")){
-            String[] cmd = {
-                    "python", pyPath,
-                    crossValidationNumber+"",
-                    csv_source, trainPath,
-                    testPath, propPath
-            };
-            return executeProcess(runtime.exec(cmd));
-        } else {
-            ProcessBuilder builder = new ProcessBuilder("python",
-                    System.getProperty("user.dir") + pyPath, crossValidationNumber+"",
-                    csv_source, trainPath,
-                    testPath, propPath
-            );
-            return executeProcess(builder.start());
-        }
+    public static int runPreprocessor(int crossValidationNumber) throws IOException, InterruptedException {
+        ProcessBuilder builder = new ProcessBuilder("python",
+                System.getProperty("user.dir") + pyPath, crossValidationNumber+"",
+                csv_source, trainPath,
+                testPath, propPath
+        );
+        return executeProcess(builder.start());
     }
 
     private static int executeProcess(Process process) throws IOException, InterruptedException {
