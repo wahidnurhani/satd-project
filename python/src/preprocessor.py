@@ -49,12 +49,12 @@ def replace_empty_string(text_data):
 
 def initial_cleaning_and_fix_contractions(text_data):
     # remove html tags and url
-    # soup = BeautifulSoup(text_data, 'lxml')
-    # re_https = re.sub(r"http\S+", "", soup.get_text())
-    # clean_text = re.sub(r"www.\S+", "", re_https)
+    soup = BeautifulSoup(text_data, 'lxml')
+    re_https = re.sub(r"http\S+", "", soup.get_text())
+    clean_text = re.sub(r"www.\S+", "", re_https)
 
     # fix contractions
-    contractions_free = fix_contractions(text_data)
+    contractions_free = fix_contractions(clean_text)
     return contractions_free
 
 
@@ -86,8 +86,37 @@ def export_to_train_and_test(df1, df2, train_path, test_path):
 def clean_and_normalize_data(data_frame: pd.DataFrame):
     cols_to_check = ['commenttext']
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: x.lower())
-    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: fix_contractions(x))
     data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: second_cleaning_and_lemmatization(x))
+    data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
+    return data_frame_clean.dropna()
+
+
+def clean_data(text_data):
+    # remove new line char and tab char (stanford classifier requirements)
+    text_data = text_data.replace('\t', ' ')
+    text_data = text_data.replace('\n', ' ')
+    # remove java comment syntax
+    text_data = text_data.replace('//', '')
+    text_data = text_data.replace('/*', '')
+    text_data = text_data.replace('*/', '')
+    # tokenization remove punctuation
+    text_data = text_data.replace('...', ' ')
+    words = text_data.split()
+    words = [re.sub('[,:;#]+', '', word) for word in words]
+    # rejoin token and remove excess whitespace
+    phrase = " ".join(words)
+    phrase.strip()
+    phrase = re.sub(' +', ' ', phrase)
+    # replace empty string with np.na
+    phrase = replace_empty_string(phrase)
+    return phrase
+
+
+def prepare_data(data_frame: pd.DataFrame):
+    cols_to_check = ['commenttext']
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: initial_cleaning_and_fix_contractions(x))
+    data_frame[cols_to_check] = data_frame[cols_to_check].applymap(lambda x: clean_data(x))
     data_frame_clean = df.drop_duplicates(subset=['classification', 'commenttext'], keep='last')
     return data_frame_clean.dropna()
 
@@ -100,7 +129,7 @@ def split_data(data_number: int, data_frame):
     return train, test
 
 
-def transform_data(data_number, _df, train_path, test_path):
+def segregation_data(data_number, _df, train_path, test_path):
     train, test = split_data(data_number, _df)
     export_to_train_and_test(train, test, train_path, test_path)
 
@@ -121,8 +150,8 @@ if __name__ == '__main__':
     #     indexName = df[df['classification'] == i].index
     #     df.drop(indexName, inplace=True)
 
-    clean_df = clean_and_normalize_data(df)
-    transform_data(int(split_number), clean_df, train_file_path, test_file_path)
+    clean_df = prepare_data(df)
+    segregation_data(int(split_number), clean_df, train_file_path, test_file_path)
 
     print("python process finished")
     sys.exit(220)
