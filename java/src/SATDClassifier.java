@@ -30,14 +30,22 @@ public class SATDClassifier {
         System.out.println("Enter first cross-validation number: ");
         Scanner in = new Scanner(System.in);
         int cv_number = in.nextInt();
-        if(cv_number>=1 && cv_number<=10){
-            int py_process = runPreprocessor(cv_number);
-            if (py_process != 220) {
-                writeFilePath2(cv_number);
+        boolean validate1 = validateInput1(cv_number);
+        System.out.println("Choose segregation scenario :");
+        System.out.println("cross-validation by project type \"1\"");
+        System.out.println("cross-validation by technical debt classification type \"2\"");
+        Scanner in2 = new Scanner(System.in);
+        int segregationNumber = in2.nextInt();
+        boolean validate2 = validateInput2(segregationNumber);
+        if(validate1){
+            if (validate2){
+                //int py_process = 0;
+                int py_process = runPreprocessor(cv_number);
+                if (py_process != 220) {
+                    writeFilePath2(cv_number, segregationNumber);
+                }
+                classify();
             }
-            classify();
-        } else {
-            System.out.println("pleas type number between 1 and 10");
         }
 //        for (int i = cv_number; i<=cv_number+1;i++){
 //            int py_process = runPreprocessor(i);
@@ -50,18 +58,37 @@ public class SATDClassifier {
         //demonstrateSerializationColumnDataClassifier();
     }
 
-    private static void writeFilePath2(int cv_number) {
+    private static boolean validateInput2(int segregationNumber) {
+        if (segregationNumber>=1 && segregationNumber<=2){
+            return true;
+        } else {
+            System.out.println("pleas type number between 1 and 2 for cross-validation number");
+            return false;
+        }
+    }
+
+    private static boolean validateInput1(int cv_number) {
+        if(cv_number>=1 && cv_number<=10){
+            return true;
+        } else {
+            System.out.println("pleas type number between 1 and 10 for cross-validation number");
+            return false;
+        }
+
+    }
+
+    private static void writeFilePath2(int cv_number, int segregationNumber) {
         if(getOsName().startsWith("Windows")){
             csv_source = ClassifierConstant.Unix.csv_source.replace("/", "\\\\");
             pyPath = ClassifierConstant.Unix.pythonPath.replace("/", "\\\\");
-            trainPath = ("./data/splited/"+cv_number+"/trainFile.train").replace("/", "\\\\");
-            testPath = ("./data/splited/"+cv_number+"/testFile.test").replace("/", "\\\\");
+            trainPath = ("./data/splited/splited"+segregationNumber+"/"+cv_number+"/trainFile.train").replace("/", "\\\\");
+            testPath = ("./data/splited/splited"+segregationNumber+"/"+cv_number+"/testFile.test").replace("/", "\\\\");
             propPath = ClassifierConstant.Unix.propFilePath.replace("/", "\\\\");
         } else {
             csv_source = ClassifierConstant.Unix.csv_source;
             pyPath = ClassifierConstant.Unix.pythonPath;
-            trainPath = "./data/splited/"+cv_number+"/trainFile.train";
-            testPath = "./data/splited/"+cv_number+"/testFile.test";
+            trainPath = "./data/splited/splited"+segregationNumber+"/"+cv_number+"/trainFile.train";
+            testPath = "./data/splited/splited"+segregationNumber+"/"+cv_number+"/testFile.test";
             propPath = ClassifierConstant.Unix.propFilePath;
         }
     }
@@ -153,15 +180,6 @@ public class SATDClassifier {
                 System.out.println("Training ColumnDataClassifier");
                 ColumnDataClassifier cdc = new ColumnDataClassifier(where + propPath);
                 cdc.trainClassifier(where + trainPath);
-
-                System.out.println();
-                System.out.println("Testing predictions of ColumnDataClassifier");
-                for (String line : ObjectBank.getLineIterator(where + testPath, "utf-8")) {
-                    // instead of the method in the line below, if you have the individual elements
-                    // already you can use cdc.makeDatumFromStrings(String[])
-                    Datum<String,String> d = cdc.makeDatumFromLine(line);
-                    System.out.printf("%s  ==>  %s (%.4f)%n", line, cdc.classOf(d), cdc.scoresOf(d).getCount(cdc.classOf(d)));
-                }
 
                 System.out.println();
                 System.out.println("Testing accuracy of ColumnDataClassifier");
