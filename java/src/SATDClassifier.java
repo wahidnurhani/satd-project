@@ -10,7 +10,6 @@ import java.io.*;
 import java.util.Scanner;
 
 public class SATDClassifier {
-    private static Runtime runtime;
     private static String where = "";
     private static String OS = null;
 
@@ -19,31 +18,44 @@ public class SATDClassifier {
     static String trainPath;
     static String testPath;
     static String propPath;
+    static PropFileMaker.ClassificationFeature classificationFeature;
 
     public static void main(String[] args) throws IOException, InterruptedException {
         writeFilePath();
         if (args.length > 0) {
             where = args[0] + File.separator;
         }
-        runtime = Runtime.getRuntime();
+        Runtime runtime = Runtime.getRuntime();
         System.out.println("OS-Name : "+ getOsName());
-        System.out.println("Enter first cross-validation number: ");
+        System.out.print("Enter first cross-validation number: ");
         Scanner in = new Scanner(System.in);
         int cv_number = in.nextInt();
         boolean validate1 = validateInput1(cv_number);
         System.out.println("Choose segregation scenario :");
-        System.out.println("cross-validation by project type \"1\"");
-        System.out.println("cross-validation by technical debt classification type \"2\"");
+        System.out.println("- by project type \"1\"");
+        System.out.println("- classification type \"2\"");
+        System.out.print("choose :");
         Scanner in2 = new Scanner(System.in);
         int segregationNumber = in2.nextInt();
         boolean validate2 = validateInput2(segregationNumber);
         if(validate1){
             if (validate2){
-                //int py_process = 0;
-                int py_process = runPreprocessor(cv_number);
+                int py_process = 0;
+                //int py_process = runPreprocessor(cv_number);
                 if (py_process != 220) {
                     writeFilePath2(cv_number, segregationNumber);
                 }
+            }
+        }
+
+        System.out.println("---------------------------");
+        System.out.println("choose classification feature (1.NGrams, 2.Bag Of Words) ");
+        System.out.print("(1/2) : ");
+        Scanner in3  = new Scanner(System.in);
+        makePropFile(in3);
+
+        if(validate1){
+            if (validate2){
                 classify();
             }
         }
@@ -56,6 +68,24 @@ public class SATDClassifier {
 
         //demonstrateSerialization();
         //demonstrateSerializationColumnDataClassifier();
+    }
+
+    private static void makePropFile(Scanner in3) throws IOException {
+        if(in3.nextInt()==1){
+            classificationFeature = PropFileMaker.ClassificationFeature.NGRAMS;
+        } else {
+            classificationFeature = PropFileMaker.ClassificationFeature.BAG_OF_WORDS;
+        }
+        File file = new File(propPath);
+        if(file.delete()){
+            if(file.createNewFile()){
+                PropFileMaker propFileMaker = new PropFileMaker();
+                propFileMaker.makeProp(classificationFeature, trainPath, testPath);
+            }
+        }else if(file.createNewFile()){
+            PropFileMaker propFileMaker = new PropFileMaker();
+            propFileMaker.makeProp(classificationFeature, trainPath, testPath);
+        }
     }
 
     private static boolean validateInput2(int segregationNumber) {
