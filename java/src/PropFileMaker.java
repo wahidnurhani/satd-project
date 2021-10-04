@@ -6,6 +6,7 @@ import java.util.Scanner;
 public class PropFileMaker {
 
     ClassificationFeature classificationFeature;
+    boolean useClassFeature=true;
     boolean useNGrams=false;
     boolean usePrefixSuffixNGrams=false;
     int maxNGramleng=3;
@@ -13,6 +14,7 @@ public class PropFileMaker {
     List<Integer> binnedLengths = new ArrayList<>(Arrays.asList(10, 20, 30));
     boolean useSplitWords=false;
     String splitWordRegexp= "[ ]";
+    int printClassifierParam=200;
 
     int goldAnswerColumn = 0;
     int displayedColumn = 1;
@@ -62,14 +64,15 @@ public class PropFileMaker {
         }
     }
 
-    public static enum ClassificationFeature{
+    public enum ClassificationFeature{
         NGRAMS, BAG_OF_WORDS
     }
 
     @Override
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
-        if(classificationFeature.equals(ClassificationFeature.NGRAMS)){
+        stringBuilder.append("useClassFeature=").append(useClassFeature).append("\n");
+        if(this.classificationFeature.equals(ClassificationFeature.NGRAMS)){
             stringBuilder.append("1.useNGrams=").append(useNGrams).append("\n");
             stringBuilder.append("1.usePrefixSuffixNGrams=").append(useNGrams).append("\n");
             stringBuilder.append("1.maxNGramLeng=").append(maxNGramleng).append("\n");
@@ -82,7 +85,7 @@ public class PropFileMaker {
             stringBuilder.append("1.useSplitWords=").append(useSplitWords).append("\n");
             stringBuilder.append("1.splitWordsRegexp=").append(splitWordRegexp).append("\n");
         }
-
+        stringBuilder.append("printClassifierParam=").append(printClassifierParam).append("\n");
         stringBuilder.append("goldAnswerColumn=").append(goldAnswerColumn).append("\n");
         stringBuilder.append("displayedColumn=").append(displayedColumn).append("\n");
         stringBuilder.append("intern=").append(intern).append("\n");

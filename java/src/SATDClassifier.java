@@ -27,13 +27,13 @@ public class SATDClassifier {
         }
         Runtime runtime = Runtime.getRuntime();
         System.out.println("OS-Name : "+ getOsName());
-        System.out.print("Enter first cross-validation number: ");
+        System.out.print("Enter cross-validation number: ");
         Scanner in = new Scanner(System.in);
         int cv_number = in.nextInt();
         boolean validate1 = validateInput1(cv_number);
         System.out.println("Choose segregation scenario :");
-        System.out.println("- by project type \"1\"");
-        System.out.println("- classification type \"2\"");
+        System.out.println("- by project-type(Deprecated) \"1\"");
+        System.out.println("- by classification-type \"2\"");
         System.out.print("choose :");
         Scanner in2 = new Scanner(System.in);
         int segregationNumber = in2.nextInt();
@@ -77,15 +77,14 @@ public class SATDClassifier {
             classificationFeature = PropFileMaker.ClassificationFeature.BAG_OF_WORDS;
         }
         File file = new File(propPath);
-        if(file.delete()){
-            if(file.createNewFile()){
-                PropFileMaker propFileMaker = new PropFileMaker();
-                propFileMaker.makeProp(classificationFeature, trainPath, testPath);
-            }
-        }else if(file.createNewFile()){
-            PropFileMaker propFileMaker = new PropFileMaker();
-            propFileMaker.makeProp(classificationFeature, trainPath, testPath);
-        }
+        file.delete();
+        PropFileMaker propFileMaker = new PropFileMaker();
+        file.createNewFile();
+        propFileMaker.makeProp(classificationFeature, trainPath, testPath);
+
+        FileWriter fileWriter = new FileWriter(propPath);
+        fileWriter.write(propFileMaker.toString());
+        fileWriter.close();
     }
 
     private static boolean validateInput2(int segregationNumber) {
