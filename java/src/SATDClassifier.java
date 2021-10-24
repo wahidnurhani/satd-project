@@ -1,9 +1,4 @@
-import edu.stanford.nlp.classify.Classifier;
 import edu.stanford.nlp.classify.ColumnDataClassifier;
-import edu.stanford.nlp.classify.LinearClassifier;
-import edu.stanford.nlp.ling.Datum;
-import edu.stanford.nlp.objectbank.ObjectBank;
-import edu.stanford.nlp.util.ErasureUtils;
 import edu.stanford.nlp.util.Pair;
 
 import java.io.*;
@@ -20,30 +15,29 @@ public class SATDClassifier {
     static String propPath;
     static PropFileMaker.ClassificationFeature classificationFeature;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         writeFilePath();
         if (args.length > 0) {
             where = args[0] + File.separator;
         }
-        Runtime runtime = Runtime.getRuntime();
         System.out.println("OS-Name : "+ getOsName());
         System.out.print("Enter cross-validation number: ");
         Scanner in = new Scanner(System.in);
         int cv_number = in.nextInt();
         boolean validate1 = validateInput1(cv_number);
         System.out.println("Choose segregation scenario :");
-        System.out.println("- by project-type(Deprecated) \"1\"");
-        System.out.println("- by classification-type \"2\"");
+        System.out.println("- Leave-One-Out CV \"1\"");
+        System.out.println("- Stratified K-Fold CV \"2\"");
         System.out.print("choose :");
         Scanner in2 = new Scanner(System.in);
-        int segregationNumber = in2.nextInt();
-        boolean validate2 = validateInput2(segregationNumber);
+        int segregationScenario = in2.nextInt();
+        boolean validate2 = validateInput2(segregationScenario);
         if(validate1){
             if (validate2){
                 int py_process = 0;
                 //int py_process = runPreprocessor(cv_number);
                 if (py_process != 220) {
-                    writeFilePath2(cv_number, segregationNumber);
+                    writeFilePath2(cv_number, segregationScenario);
                 }
             }
         }
@@ -103,21 +97,33 @@ public class SATDClassifier {
             System.out.println("pleas type number between 1 and 10 for cross-validation number");
             return false;
         }
-
     }
 
-    private static void writeFilePath2(int cv_number, int segregationNumber) {
+    private static void writeFilePath2(int cv_number, int segregationScenario) {
+        int new_segregation = segregationScenario;
+        System.out.println(new_segregation);
+        if(segregationScenario==1){
+            System.out.print("do you wanna shuffle train-data? (y/n) : " );
+            Scanner inShuffle = new Scanner(System.in);
+            String shuffled = inShuffle.nextLine();
+
+            if(shuffled.equalsIgnoreCase("y")){
+                new_segregation++;
+                new_segregation++;
+            }
+        }
+        System.out.println(new_segregation);
         if(getOsName().startsWith("Windows")){
             csv_source = ClassifierConstant.Unix.csv_source.replace("/", "\\\\");
             pyPath = ClassifierConstant.Unix.pythonPath.replace("/", "\\\\");
-            trainPath = ("./data/splited/splited"+segregationNumber+"/"+cv_number+"/trainFile.train").replace("/", "\\\\");
-            testPath = ("./data/splited/splited"+segregationNumber+"/"+cv_number+"/testFile.test").replace("/", "\\\\");
+            trainPath = ("./data/splited/splited"+new_segregation+"/"+cv_number+"/trainFile.train").replace("/", "\\\\");
+            testPath = ("./data/splited/splited"+new_segregation+"/"+cv_number+"/testFile.test").replace("/", "\\\\");
             propPath = ClassifierConstant.Unix.propFilePath.replace("/", "\\\\");
         } else {
             csv_source = ClassifierConstant.Unix.csv_source;
             pyPath = ClassifierConstant.Unix.pythonPath;
-            trainPath = "./data/splited/splited"+segregationNumber+"/"+cv_number+"/trainFile.train";
-            testPath = "./data/splited/splited"+segregationNumber+"/"+cv_number+"/testFile.test";
+            trainPath = "./data/splited/splited"+new_segregation+"/"+cv_number+"/trainFile.train";
+            testPath = "./data/splited/splited"+new_segregation+"/"+cv_number+"/testFile.test";
             propPath = ClassifierConstant.Unix.propFilePath;
         }
     }
@@ -135,71 +141,6 @@ public class SATDClassifier {
             trainPath = ClassifierConstant.Unix.trainFilePath;
             testPath = ClassifierConstant.Unix.testFilePath;
             propPath = ClassifierConstant.Unix.propFilePath;
-        }
-    }
-
-    private static void demonstrateSerialization()
-            throws IOException, ClassNotFoundException {
-        System.out.println();
-        System.out.println("Demonstrating working with a serialized classifier");
-        ColumnDataClassifier cdc = new ColumnDataClassifier(where + propPath);
-        Classifier<String,String> cl =
-                cdc.makeClassifier(cdc.readTrainingExamples(where + trainPath));
-
-        // Exhibit serialization and deserialization working. Serialized to bytes in memory for simplicity
-        System.out.println();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(cl);
-        oos.close();
-
-        byte[] object = baos.toByteArray();
-        ByteArrayInputStream bais = new ByteArrayInputStream(object);
-        ObjectInputStream ois = new ObjectInputStream(bais);
-        LinearClassifier<String,String> lc = ErasureUtils.uncheckedCast(ois.readObject());
-        ois.close();
-        ColumnDataClassifier cdc2 = new ColumnDataClassifier(where + propPath);
-
-        // We compare the output of the deserialized classifier lc versus the original one cl
-        // For both we use a ColumnDataClassifier to convert text lines to examples
-        System.out.println();
-        System.out.println("Making predictions with both classifiers");
-        for (String line : ObjectBank.getLineIterator(where + testPath, "utf-8")) {
-            Datum<String,String> d = cdc.makeDatumFromLine(line);
-            Datum<String,String> d2 = cdc2.makeDatumFromLine(line);
-            System.out.printf("%s  =origi=>  %s (%.4f)%n", line, cl.classOf(d), cl.scoresOf(d).getCount(cl.classOf(d)));
-            System.out.printf("%s  =deser=>  %s (%.4f)%n", line, lc.classOf(d2), lc.scoresOf(d).getCount(lc.classOf(d)));
-        }
-    }
-
-    private static void demonstrateSerializationColumnDataClassifier()
-            throws IOException, ClassNotFoundException {
-        System.out.println();
-        System.out.println("Demonstrating working with a serialized classifier using serializeTo");
-        ColumnDataClassifier cdc = new ColumnDataClassifier(where + propPath);
-        cdc.trainClassifier(where + trainPath);
-
-        // Exhibit serialization and deserialization working. Serialized to bytes in memory for simplicity
-        System.out.println();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        cdc.serializeClassifier(oos);
-        oos.close();
-
-        byte[] object = baos.toByteArray();
-        ByteArrayInputStream bais = new ByteArrayInputStream(object);
-        ObjectInputStream ois = new ObjectInputStream(bais);
-        ColumnDataClassifier cdc2 = ColumnDataClassifier.getClassifier(ois);
-        ois.close();
-
-        // We compare the output of the deserialized classifier cdc2 versus the original one cl
-        // For both we use a ColumnDataClassifier to convert text lines to examples
-        System.out.println("Making predictions with both classifiers");
-        for (String line : ObjectBank.getLineIterator(where + testPath, "utf-8")) {
-            Datum<String,String> d = cdc.makeDatumFromLine(line);
-            Datum<String,String> d2 = cdc2.makeDatumFromLine(line);
-            System.out.printf("%s  =origi=>  %s (%.4f)%n", line, cdc.classOf(d), cdc.scoresOf(d).getCount(cdc.classOf(d)));
-            System.out.printf("%s  =deser=>  %s (%.4f)%n", line, cdc2.classOf(d2), cdc2.scoresOf(d).getCount(cdc2.classOf(d)));
         }
     }
 

@@ -54,13 +54,18 @@ public class PropFileMaker {
         Scanner inSelectedOptimization = new Scanner(System.in);
         String selectedChangeOptimization = inSelectedOptimization.nextLine();
 
-        if(selectedChangeOptimization.equals("y")){
+        if(selectedChangeOptimization.equalsIgnoreCase("y")){
             System.out.print("sigma = ");
             Scanner inSigma = new Scanner(System.in);
             this.sigma=inSigma.nextInt();
             System.out.print("QNsize = ");
             Scanner inQNsize = new Scanner(System.in);
             this.QNsize=inQNsize.nextInt();
+        } else if(selectedChangeOptimization.equalsIgnoreCase("n")) {
+            this.sigma = 3;
+            this.QNsize = 15;
+        } else {
+            System.out.println("input-value incorrect");
         }
     }
 

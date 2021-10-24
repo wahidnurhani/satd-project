@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import pandas as pd
 import contractions
+from sklearn.utils import shuffle
 from bs4 import BeautifulSoup
 # from nltk.corpus import stopwords
 from textblob import TextBlob, Word
@@ -138,7 +139,7 @@ def prepare_data(data_frame: pd.DataFrame):
 def split_data(data_number: int, data_frame):
     s_array = data_frame["projectname"].to_numpy()
     unique = np.unique(s_array)
-    train = data_frame[data_frame['projectname'] != unique[data_number - 1]].drop(["projectname"], axis=1)
+    train = shuffle(data_frame[data_frame['projectname'] != unique[data_number - 1]].drop(["projectname"], axis=1))
     test = data_frame[data_frame['projectname'] == unique[data_number - 1]].drop(["projectname"], axis=1)
     return train, test
 
@@ -167,7 +168,7 @@ def split_data2(data_number: int, data_frame: pd.DataFrame):
 
 
 def segregation_data(data_number, _df, train_path, test_path):
-    train, test = split_data2(data_number, _df)
+    train, test = split_data(data_number, _df)
     export_to_train_and_test(train, test, train_path, test_path)
 
 
