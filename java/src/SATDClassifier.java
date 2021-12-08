@@ -35,7 +35,11 @@ public class SATDClassifier {
         if(validate1){
             if (validate2){
                 int py_process = 0;
-                //int py_process = runPreprocessor(cv_number);
+                try {
+                    py_process = runPreprocessor(cv_number);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 if (py_process != 220) {
                     writeFilePath2(cv_number, segregationScenario);
                 }

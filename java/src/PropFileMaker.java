@@ -42,7 +42,7 @@ public class PropFileMaker {
             Scanner inNGrams = new Scanner(System.in);
             this.maxNGramleng = inNGrams.nextInt();
 
-            System.out.print("binnedLegths (ex: 10,20,30) = ");
+            System.out.print("binnedLengths (ex: 10,20,30) = ");
             Scanner inBinnedLengths = new Scanner(System.in);
             String[] binnedList = inBinnedLengths.nextLine().split(",");
             int binned1 = Integer.parseInt(binnedList[0].trim());
